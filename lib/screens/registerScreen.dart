@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-
 class RegisterScreen extends StatefulWidget {
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -12,8 +11,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _passwordController = TextEditingController();
 
   void _register(BuildContext context) async {
-    String email = _emailController.text;
+    String email = _emailController.text.trim();
     String password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Preencha todos os campos')),
+      );
+      return;
+    }
 
     try {
       UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -27,9 +33,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       // Navegar para a tela desejada após o registro bem-sucedido
       Navigator.pushReplacementNamed(context, '/places');
-    } catch(e) {
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao cadastrar: $e')),
+        SnackBar(content: Text('Erro ao cadastrar: ${e.toString()}')),
       );
     }
   }
@@ -38,7 +44,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cadastro'),
+        title: const Text('Cadastro'),
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -48,6 +54,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             children: [
               TextField(
                 controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(
                   labelText: 'Email',
                 ),
@@ -65,7 +72,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 onPressed: () {
                   _register(context);
                 }, 
-                child: const Text('Registrar')
+                child: const Text('Registrar'),
               ),
             ],
           ),
